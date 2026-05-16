@@ -49,8 +49,8 @@ jobs:
             echo "Add KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, and KEY_PASSWORD to also build Play Store release artifacts."
             exit 0
           fi
-          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/dropframe-release.jks"
-          export KEYSTORE_PATH="$RUNNER_TEMP/dropframe-release.jks"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/git2app-release.jks"
+          export KEYSTORE_PATH="$RUNNER_TEMP/git2app-release.jks"
           ./gradlew --no-daemon assembleRelease bundleRelease --stacktrace
 
       - name: Upload debug APK and AAB

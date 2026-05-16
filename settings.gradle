@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'DropframeAndroidApp'
+rootProject.name = 'Git2AppAndroidApp'
 include ':app'

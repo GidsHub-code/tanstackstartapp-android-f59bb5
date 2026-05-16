@@ -2,7 +2,7 @@
 set -eu
 GRADLE_VERSION="8.9"
 GRADLE_USER_HOME="${GRADLE_USER_HOME:-$HOME/.gradle}"
-DIST_DIR="$GRADLE_USER_HOME/dropframe/gradle-$GRADLE_VERSION"
+DIST_DIR="$GRADLE_USER_HOME/git2app/gradle-$GRADLE_VERSION"
 if [ ! -x "$DIST_DIR/bin/gradle" ]; then
   TMP_DIR="$(mktemp -d)"
   ZIP_FILE="$TMP_DIR/gradle.zip"
