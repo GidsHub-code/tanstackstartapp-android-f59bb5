@@ -109,8 +109,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) { refresh.setRefreshing(true); }
             @Override
-            public void onPageFinished(WebView view, String url) { refresh.setRefreshing(false); }
+            public void onPageFinished(WebView view, String url) {
+                refresh.setRefreshing(false);
+                String saved = getSharedPreferences("fcm", MODE_PRIVATE).getString("token", null);
+                if (saved != null) {
+                    String js = "window.__FCM_TOKEN__ = '" + saved + "';"
+                        + "if(window.onFcmToken) window.onFcmToken('" + saved + "');";
+                    view.evaluateJavascript(js, null);
+                }
+            }
         });
+
+        // Listen for new FCM tokens and push them into the WebView live
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
+            .registerReceiver(new android.content.BroadcastReceiver() {
+                @Override
+                public void onReceive(android.content.Context ctx, android.content.Intent intent) {
+                    String token = intent.getStringExtra("token");
+                    if (token != null && webView != null) {
+                        String js = "window.__FCM_TOKEN__ = '" + token + "';"
+                            + "if(window.onFcmToken) window.onFcmToken('" + token + "');";
+                        runOnUiThread(() -> webView.evaluateJavascript(js, null));
+                    }
+                }
+            }, new android.content.IntentFilter("FCM_TOKEN"));
 
         refresh.setOnRefreshListener(() -> webView.reload());
         if (savedInstanceState != null) {
@@ -140,6 +162,10 @@ public class MainActivity extends AppCompatActivity {
                 NotificationManager.IMPORTANCE_HIGH
             );
             channel.setDescription("Push notifications");
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            channel.setVibrationPattern(new long[]{0, 250, 250, 250});
+            channel.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
             NotificationManager nm = getSystemService(NotificationManager.class);
             if (nm != null) nm.createNotificationChannel(channel);
         }
@@ -182,5 +208,14 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (webView.canGoBack()) webView.goBack();
         else super.onBackPressed();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String url = intent.getStringExtra("open_url");
+        if (url != null && webView != null) {
+            webView.loadUrl(url);
+        }
     }
 }
